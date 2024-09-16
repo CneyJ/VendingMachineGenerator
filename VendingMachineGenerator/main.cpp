@@ -1,6 +1,18 @@
+//
+// Courtney Ramatowski
+// Vending machine map maker. 
+//		• Makes a map of <number> vending machines
+//		• Randomly creates a connection to other vending machines
+//			• Can set probability of any vending machine connecting to another vending machine
+//		• Can display matrix view of vending machines and connections
+//		• Prints results to file for use in tests for CS465 experiment
+
+
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <fstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -14,22 +26,55 @@ string printGraph(int numberOfMachines, float** graph);
 float** fillGraph(int numberOfMachines, float** graph, int probability);
 float randomFloat();
 float** validateGraph(int numberOfMachines, float** graph);
+void writeToFile(int numberOfMachines, float** graph, string fileName);
 
 void main(int argc, char* argv[]) {
 
 	// Get args
 	int numberOfMachines = (argc > 1) ? (atoi(argv[1])) : (10);
-	int percentage = (argc > 2) ? (atoi(argv[2])) : (30);
+	int probability = (argc > 2) ? (atoi(argv[2])) : (30);
+	string fileName = (argc > 3) ? (string (argv[3])) : ("VM_TestData_M" + to_string(numberOfMachines) + "_p" + to_string(probability) + ".txt");
 	
+	//cout << "numberOfMachines: " << numberOfMachines << endl;
+	//cout << "probability: " << probability << endl;
+	//cout << "fileName: " << fileName << endl;
+
+
 	// Create double array to represent edges/distances between vending machines/nodes
 	float** graph = createGraph(numberOfMachines);
 
 	// Fill graph
-	graph = fillGraph(numberOfMachines, graph, percentage);
+	graph = fillGraph(numberOfMachines, graph, probability);
 	
 	// Show graph
-	cout << printGraph(numberOfMachines, graph);
+	//cout << printGraph(numberOfMachines, graph);
+
+	// Write graph to file
+	writeToFile(numberOfMachines, graph, fileName);
+
+	return;
+}
+
+void writeToFile(int numberOfMachines, float** graph, string fileName) {
+	// Writes graph data to a txt file
+	
+	ofstream outFile(fileName);
+
+	for (int i = 0; i < numberOfMachines; i++) {
+		outFile << i;
+
+		for (int j = 0; j < numberOfMachines; j++) {
 			
+			if (graph[i][j] > MIN_DIST) {
+				outFile << " " << j << " " << fixed << setprecision(2) << graph[i][j];
+			}
+		}
+
+		outFile << endl;
+	}
+
+	outFile.close();
+
 	return;
 }
 
@@ -137,11 +182,8 @@ string printGraph(int numberOfMachines, float** graph) {
 		retStream.width(6);
 		retStream << (i+1) << " | ";
 		for (int j = 0; j < numberOfMachines; j++) {
-			retStream.setf(ios::fixed, ios::floatfield);
 			retStream.width(6);
-			retStream.precision(2);
-			//retStream << randomFloat();
-			retStream << graph[i][j];
+			retStream << fixed << setprecision(2) << graph[i][j];
 			//retStream << (numberOfMachines > j) ? (", ") : (" ");
 			if ((numberOfMachines - 1) > j) {
 				retStream << ", ";
@@ -154,7 +196,7 @@ string printGraph(int numberOfMachines, float** graph) {
 }
 
 float** createGraph(int numberOfMachines) {
-	// Create's a 2 dimensional array to represent the graph/map of connecting paths between vending machines. 
+	// Create's a 2 dimensional array (filled with all 0's) to represent the graph/map of connecting paths between vending machines. 
 
 	// Make an array of pointers 
 	float** graph = new float* [numberOfMachines];
