@@ -1,4 +1,3 @@
-//
 // Courtney Ramatowski
 // Vending machine map maker. 
 //		• Makes a map of <number> vending machines
@@ -16,7 +15,7 @@
 
 using namespace std;
 
-// Estimated min and max separation (in meters) for vending machine layouts.
+// Estimated min and max weight/length (in meters) for vending machine layouts.
 const int MAX_DIST = 500;
 const int MIN_DIST = 30;
 const int PRECISION = 2;
